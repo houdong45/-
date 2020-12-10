@@ -1,0 +1,100 @@
+#导入相关库
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+#pandas库主要是为了存储导入的数据
+#matplotlib库主要是负责绘制图像
+#numpy库处理的最基础数据类型是由同种元素构成的多维数组，数组中的所有元素的类型必须相同
+
+
+#1.损耗函数，theta.T转置
+def fuckCost(X,y,theta):
+
+    dick=len(y)
+    inner = np.power(((X * theta.T) - y), 2)
+    #np.power函数用于求平方
+    return np.sum(inner) / (2 * dick)
+#2.批量梯度下降算法
+#   X:输入变量
+#   y:输出变量
+#   theta：系数值（h(x)=theta(1)+theta(2)*x）
+#   alpha：学习率
+#   iters：迭代次数
+def tiduxiajiang(X, y, theta, alpha, iters):
+    temp = np.matrix(np.zeros(theta.shape))
+#theta.shape它的功能是查看矩阵或者数组的维数 matrix构造数组 np.zeros初始化数组为0
+
+    parameters = int(theta.ravel().shape[1])
+#ravel()方法将数组维度拉成一维数组 shape[1]就是读取矩阵第二维度的长度
+    cost = np.zeros(iters)
+
+    for i in range(iters):
+        wucha = (X * theta.T) - y
+#每次更新误差值
+        for j in range(parameters):
+            term = np.multiply(wucha, X[:,j])
+#用法：np.multiply(x1,x2)，
+#作用：逐元素相乘，若x1和x2均为标量，则返回标量
+            temp[0,j] = theta[0,j] - ((alpha / len(X)) * np.sum(term))
+#更新每一个theta
+        theta = temp
+        cost[i] = fuckCost(X, y, theta)
+
+    return theta, cost
+
+
+if __name__ == '__main__':
+#读取训练数据集中的数据
+
+    dick=pd.read_csv('fuckyou.txt', names=['fuckx', 'fucky'])
+#pd.read_csv读取文本内容
+#处理中文乱码
+    plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']
+#坐标轴负号的处理
+    plt.rcParams['axes.unicode_minus']=False
+#显示读取的数据可视化 scatter散点图类型 figsize控制窗口大小
+    dick.plot(kind='scatter', x='fuckx', y='fucky', figsize=(13,9))
+    plt.show()
+
+#我们在训练集中添加一列，以便我们可以使用向量化的解决方案来计算代价和梯度。
+    dick.insert(0,'Ones',1)
+    X=dick.iloc[:,[0,1]]#X是所有行
+    y=dick.iloc[:,2]#y是所有行
+#代价函数是矩阵计算，所以需要将X,y,theta转变为矩阵
+    X = np.matrix(X.values)
+    y = np.matrix(y.values)
+    y=y.T#转置
+    theta = np.matrix(np.array([0,0]))
+    iters = 5000#迭代次数
+    alpha = 0.01#学习率
+    fuckCost(X, y, theta)
+    g, cost = tiduxiajiang(X, y, theta, alpha, iters)
+#g最佳theat值，cost存放代价函数求出的值
+    print('求出的最佳theat值：',g)
+
+    x = np.linspace(dick.fuckx.min(), dick.fuckx.max(), 100)
+#x轴由数据集的最大最小值划分成100份而成
+    f = g[0, 0] + (g[0, 1] * x)
+#f代表预测的曲线
+    fig, ax = plt.subplots(figsize=(13,9))
+    ax.plot(x, f, 'r', label='预测函数')
+#绘制回归函数
+    ax.scatter(dick.fuckx, dick.fucky, label='训练数据')
+#标出x与y的散点图
+    ax.set_xlabel('x特征')
+    ax.set_ylabel('y特征')
+    ax.set_title('预测曲线')
+    plt.show()
+    # 预测x为3.5和7的y值
+    predict1 = g[0,0]*1+(g[0, 1] * 3.5)
+    print('当x为3.5时,我们预测利润为',predict1);
+    predict2 = g[0,0]*1+(g[0, 1] * 7)
+    print('当y为7时,我们预测利润为',predict2);
+
+    fig, ax = plt.subplots(figsize=(13,9))
+    ax.plot(np.arange(iters), cost, 'b')
+#r代表红色 b代表蓝色
+    ax.set_xlabel('迭代次数')
+    ax.set_ylabel('输出代价')
+    ax.set_title('代价函数')
+    plt.show()
